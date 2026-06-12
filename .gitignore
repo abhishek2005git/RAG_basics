@@ -1,0 +1,12 @@
+# Exclude the Python virtual environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Exclude local database storage
+db/
+chroma_db/
+
+# Exclude your secret API keys file
+.env
