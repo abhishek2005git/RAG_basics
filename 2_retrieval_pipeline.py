@@ -1,5 +1,6 @@
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +16,7 @@ db = Chroma(
     collection_metadata={"hnsw:space":"cosine"}
 )
 
-query = "Who is the founder of amazon"
+query = "What is amazon??"
 
 retriever = db.as_retriever(search_kwargs={"k":3})
 
@@ -28,6 +29,21 @@ for i, doc in enumerate(relevant_docs,1):
     print(f"Document {i}: \n{doc.page_content}\n")
 
 
+combined_input = f"""Based on the following retrieved documents, answer the question: {query}   
+Documents:
+{chr(10).join(doc.page_content for doc in relevant_docs)}
+Please provide a concise and accurate answer to the question based on the information from the documents.If the documents do not contain relevant information, please state that you don't know the answer.
+"""
 
-# if __name__ == "__main__":
-#     main() 
+model = ChatGroq(
+    model="llama-3.1-8b-instant",
+    temperature=0.1
+)
+
+print("---- LLM Generation ----")
+print("Sending context to Groq...")
+
+response = model.invoke(combined_input)
+print("\n---- Response ----")
+print(response.content)
+print("======================\n")
